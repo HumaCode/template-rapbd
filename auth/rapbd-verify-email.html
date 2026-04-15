@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>RAPBD — Verifikasi Email</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<style>
+:root{--primary:#1a4b8c;--primary-light:#2563c0;--primary-pale:#e8f0fb;--accent:#f59e0b;--surface:#ffffff;--surface-2:#f6f8fd;--text-main:#0f1d3b;--text-muted:#5f7296;--border:#d4ddf5;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text-main);background:#f0f4fd;overflow:hidden;}
+#pc{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.auth-wrapper{position:relative;z-index:1;min-height:100vh;display:flex;align-items:stretch;}
+
+/* Brand */
+.brand-panel{flex:0 0 46%;background:linear-gradient(145deg,#0d2f6e 0%,#1a4b8c 45%,#2563c0 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:3rem 3.5rem;position:relative;overflow:hidden;}
+.brand-panel::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.05);}
+.brand-panel::after{content:'';position:absolute;bottom:-100px;left:-60px;width:280px;height:280px;border-radius:50%;background:rgba(245,158,11,.08);}
+.brand-logo-wrap{width:88px;height:88px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.22);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:1.75rem;backdrop-filter:blur(8px);animation:floatIcon 3.6s ease-in-out infinite;}
+.brand-logo-wrap i{font-size:2.6rem;color:#fff;}
+@keyframes floatIcon{0%,100%{transform:translateY(0) rotate(0deg);}33%{transform:translateY(-9px) rotate(-2deg);}66%{transform:translateY(-5px) rotate(2deg);}}
+.brand-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.15;margin-bottom:.75rem;text-align:center;}
+.brand-subtitle{font-size:.875rem;color:rgba(255,255,255,.72);text-align:center;max-width:320px;line-height:1.65;margin-bottom:2.5rem;}
+.brand-badges{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;}
+.brand-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:100px;padding:.3rem .85rem;backdrop-filter:blur(4px);}
+.brand-badge i{font-size:.85rem;color:var(--accent);}
+.brand-year{position:absolute;bottom:1.5rem;font-size:.72rem;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;}
+
+/* Form panel */
+.form-panel{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 2.5rem;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;}
+.form-panel::-webkit-scrollbar{display:none;}
+.form-card{width:100%;max-width:430px;animation:slideUp .55s cubic-bezier(.22,.68,0,1.2) both;}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* Envelope animation */
+.envelope-wrap{
+  width:100px;height:100px;margin:0 auto 1.75rem;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.envelope-bg{
+  width:100%;height:100%;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary-pale),#dce9fb);
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  animation:envFloat 3.2s ease-in-out infinite;
+}
+@keyframes envFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.envelope-bg i{font-size:2.6rem;color:var(--primary);}
+.env-dot{
+  position:absolute;
+  top:8px;right:12px;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#059669,#34d399);
+  border:2.5px solid #fff;
+  display:flex;align-items:center;justify-content:center;
+  animation:dotPop .5s cubic-bezier(.34,1.56,.64,1) .3s both;
+}
+.env-dot i{font-size:.55rem;color:#fff;font-weight:900;}
+@keyframes dotPop{from{transform:scale(0);}to{transform:scale(1);}}
+
+/* Orbit rings */
+.orbit-1,.orbit-2{
+  position:absolute;border-radius:50%;
+  border:1.5px dashed rgba(26,75,140,.12);
+}
+.orbit-1{inset:-14px;animation:spin1 14s linear infinite;}
+.orbit-2{inset:-28px;animation:spin2 20s linear infinite reverse;}
+@keyframes spin1{to{transform:rotate(360deg);}}
+@keyframes spin2{to{transform:rotate(360deg);}}
+
+/* Eyebrow */
+.form-eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--primary-light);background:var(--primary-pale);border-radius:100px;padding:.3rem .9rem;margin-bottom:1rem;}
+.form-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--primary-light);animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.form-heading{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,1.85rem);font-weight:700;color:var(--text-main);line-height:1.2;margin-bottom:.5rem;}
+.form-desc{font-size:.83rem;color:var(--text-muted);line-height:1.65;margin-bottom:1.5rem;}
+
+/* Email highlight */
+.email-highlight{
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:var(--primary-pale);
+  border:1px solid var(--border);
+  border-radius:8px;padding:.3rem .75rem;
+  font-size:.82rem;font-weight:700;color:var(--primary);
+  margin:.25rem 0 1rem;
+}
+
+/* OTP input row */
+.otp-wrap{
+  display:flex;gap:.6rem;justify-content:center;margin-bottom:1.25rem;
+}
+.otp-input{
+  width:52px;height:58px;
+  border:2px solid var(--border);border-radius:12px;
+  font-family:inherit;font-size:1.35rem;font-weight:800;
+  text-align:center;color:var(--text-main);
+  background:var(--surface);outline:none;
+  transition:border-color .2s,box-shadow .2s,transform .15s;
+  -moz-appearance:textfield;
+}
+.otp-input::-webkit-inner-spin-button,.otp-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.otp-input:focus{
+  border-color:var(--primary-light);
+  box-shadow:0 0 0 3.5px rgba(37,99,192,.12);
+  transform:translateY(-2px);
+}
+.otp-input.filled{border-color:var(--primary-light);background:var(--primary-pale);}
+.otp-sep{display:flex;align-items:center;color:var(--border);font-size:1.2rem;padding-bottom:.25rem;}
+
+/* Resend */
+.resend-wrap{text-align:center;margin-bottom:1.25rem;}
+.resend-timer{font-size:.78rem;color:var(--text-muted);}
+.resend-timer span{font-weight:700;color:var(--primary);}
+.resend-btn{font-size:.78rem;font-weight:600;color:var(--primary-light);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;}
+.resend-btn:hover{color:var(--primary);}
+.resend-btn:disabled{color:var(--text-muted);text-decoration:none;cursor:default;}
+
+/* Alert */
+.alert-custom{display:flex;align-items:flex-start;gap:.7rem;padding:.85rem 1rem;border-radius:10px;margin-bottom:1.25rem;font-size:.8rem;line-height:1.5;animation:slideUp .3s ease both;}
+.alert-custom.success{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;}
+.alert-custom.error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+.alert-custom i{font-size:1rem;flex-shrink:0;margin-top:.05rem;}
+
+/* Submit button */
+.btn-primary-full{width:100%;height:52px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);color:#fff;font-family:inherit;font-size:.92rem;font-weight:700;letter-spacing:.03em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;transition:transform .18s,box-shadow .18s;box-shadow:0 4px 18px rgba(26,75,140,.3);margin-bottom:1.25rem;}
+.btn-primary-full:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(26,75,140,.38);}
+.btn-primary-full:disabled{opacity:.6;transform:none;cursor:not-allowed;}
+
+/* Steps */
+.step-wrap{display:flex;gap:1rem;margin-bottom:1.5rem;}
+.step-item{flex:1;padding:.65rem .75rem;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);text-align:center;}
+.step-item.active{background:var(--primary-pale);border-color:var(--border);}
+.step-item i{display:block;font-size:1.1rem;color:var(--text-muted);margin-bottom:.25rem;}
+.step-item.active i{color:var(--primary);}
+.step-item span{font-size:.65rem;font-weight:600;color:var(--text-muted);}
+.step-item.active span{color:var(--primary);}
+
+/* Info footer */
+.info-box{padding:1rem;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;font-size:.76rem;color:var(--text-muted);line-height:1.65;}
+.info-box strong{color:var(--primary);font-weight:700;}
+
+/* Logout link */
+.logout-link{display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:.78rem;font-weight:600;color:var(--text-muted);text-decoration:none;transition:color .15s;margin-top:.85rem;}
+.logout-link:hover{color:#dc2626;}
+
+/* Success verified state */
+.verified-card{text-align:center;animation:slideUp .4s ease both;}
+.verified-icon{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:2.5px solid #6ee7b7;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;animation:verifiedBounce .7s cubic-bezier(.34,1.56,.64,1) both;}
+.verified-icon i{font-size:2.4rem;color:#059669;}
+@keyframes verifiedBounce{from{transform:scale(0) rotate(-20deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+.confetti-row{display:flex;justify-content:center;gap:.5rem;font-size:1.2rem;margin-bottom:1rem;animation:confettiIn .5s ease .3s both;}
+@keyframes confettiIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+
+/* Responsive */
+@media(max-width:991.98px){html,body{overflow:auto;}.auth-wrapper{flex-direction:column;min-height:100vh;}.brand-panel{flex:none;min-height:220px;padding:2rem;}.brand-logo-wrap{width:64px;height:64px;border-radius:18px;margin-bottom:1rem;}.brand-logo-wrap i{font-size:1.8rem;}.brand-title{font-size:1.6rem;}.brand-subtitle{font-size:.8rem;margin-bottom:1.25rem;}.form-panel{flex:1;padding:2rem 1.5rem 2.5rem;overflow-y:visible;}}
+@media(max-width:575.98px){.brand-panel{min-height:185px;padding:1.5rem 1.25rem;}.brand-logo-wrap{width:54px;height:54px;}.brand-logo-wrap i{font-size:1.5rem;}.brand-title{font-size:1.4rem;}.form-panel{padding:1.75rem 1rem 2rem;}.otp-input{width:42px;height:50px;font-size:1.1rem;}.step-wrap{gap:.5rem;}}
+@media(min-width:1400px){.brand-panel{flex:0 0 42%;}.form-card{max-width:460px;}}
+</style>
+</head>
+<body>
+<canvas id="pc"></canvas>
+<div class="auth-wrapper">
+
+  <!-- Brand Panel -->
+  <div class="brand-panel">
+    <div class="brand-logo-wrap"><i class="bi bi-bank2"></i></div>
+    <h1 class="brand-title">Sistem Informasi<br>RAPBD</h1>
+    <p class="brand-subtitle">Rancangan Anggaran Pendapatan dan Belanja Daerah — platform pengelolaan anggaran daerah yang terintegrasi dan transparan.</p>
+    <div class="brand-badges">
+      <span class="brand-badge"><i class="bi bi-shield-check-fill"></i> Keamanan Data</span>
+      <span class="brand-badge"><i class="bi bi-graph-up-arrow"></i> Analitik Real-time</span>
+      <span class="brand-badge"><i class="bi bi-file-earmark-check-fill"></i> Akuntabel</span>
+    </div>
+    <span class="brand-year">Pemerintah Daerah &nbsp;·&nbsp; &copy; 2025</span>
+  </div>
+
+  <!-- Form Panel -->
+  <div class="form-panel">
+    <div class="form-card">
+
+      <!-- Default: verify view -->
+      <div id="verifyView">
+
+        <!-- Envelope animation -->
+        <div class="envelope-wrap">
+          <div class="orbit-1"></div>
+          <div class="orbit-2"></div>
+          <div class="envelope-bg"><i class="bi bi-envelope-at"></i></div>
+          <div class="env-dot"><i class="bi bi-check-lg"></i></div>
+        </div>
+
+        <!-- Steps context -->
+        <div class="step-wrap">
+          <div class="step-item">
+            <i class="bi bi-person-fill"></i>
+            <span>Daftar Akun</span>
+          </div>
+          <div class="step-item active">
+            <i class="bi bi-envelope-fill"></i>
+            <span>Verifikasi Email</span>
+          </div>
+          <div class="step-item">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+          </div>
+        </div>
+
+        <span class="form-eyebrow">Aktivasi Akun</span>
+        <h2 class="form-heading">Verifikasi Email Anda</h2>
+        <p class="form-desc">Kami telah mengirimkan kode verifikasi 6 digit ke alamat email:</p>
+        <div class="email-highlight">
+          <i class="bi bi-envelope-fill"></i>
+          a.hidayat@pemda.go.id
+        </div>
+
+        <!-- Alert area -->
+        <div class="alert-custom success d-none" id="resendAlert">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Kode verifikasi baru telah dikirim. Silakan periksa email Anda.</span>
+        </div>
+        <div class="alert-custom error d-none" id="errorAlert">
+          <i class="bi bi-x-circle-fill"></i>
+          <span>Kode verifikasi salah atau sudah kadaluarsa. Silakan coba lagi.</span>
+        </div>
+
+        <!-- OTP input -->
+        <!-- Laravel Breeze: route('verification.send') POST / route('verification.verify') GET -->
+        <div class="otp-wrap" id="otpWrap">
+          <input class="otp-input" type="number" maxlength="1" id="otp0" oninput="otpMove(this,0)" onkeydown="otpBack(event,0)" placeholder="·"/>
+          <input class="otp-input" type="number" maxlength="1" id="otp1" oninput="otpMove(this,1)" onkeydown="otpBack(event,1)" placeholder="·"/>
+          <input class="otp-input" type="number" maxlength="1" id="otp2" oninput="otpMove(this,2)" onkeydown="otpBack(event,2)" placeholder="·"/>
+          <div class="otp-sep"><i class="bi bi-dash"></i></div>
+          <input class="otp-input" type="number" maxlength="1" id="otp3" oninput="otpMove(this,3)" onkeydown="otpBack(event,3)" placeholder="·"/>
+          <input class="otp-input" type="number" maxlength="1" id="otp4" oninput="otpMove(this,4)" onkeydown="otpBack(event,4)" placeholder="·"/>
+          <input class="otp-input" type="number" maxlength="1" id="otp5" oninput="otpMove(this,5)" onkeydown="otpBack(event,5)" placeholder="·"/>
+        </div>
+
+        <!-- Resend timer -->
+        <div class="resend-wrap">
+          <div class="resend-timer" id="timerWrap">
+            Kirim ulang kode dalam <span id="timerCount">02:00</span>
+          </div>
+          <div class="d-none" id="resendWrap">
+            Tidak menerima kode?
+            <button class="resend-btn" onclick="resendCode()">Kirim ulang</button>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary-full" id="btnVerify" onclick="handleVerify()" disabled>
+          <i class="bi bi-patch-check"></i>
+          Verifikasi Email
+        </button>
+
+        <div class="info-box">
+          Periksa folder <strong>Spam / Junk</strong> jika email tidak ditemukan di kotak masuk. Kode berlaku selama <strong>10 menit</strong>.
+        </div>
+
+        <a href="#" onclick="handleLogout()" class="logout-link">
+          <i class="bi bi-box-arrow-right"></i> Keluar dari akun ini
+        </a>
+      </div>
+
+      <!-- Verified success view -->
+      <div class="verified-card d-none" id="verifiedView">
+        <div class="confetti-row">🎉 ✨ 🎊</div>
+        <div class="verified-icon"><i class="bi bi-patch-check-fill"></i></div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin-bottom:.5rem;">Email Terverifikasi!</h2>
+        <p style="font-size:.82rem;color:var(--text-muted);line-height:1.65;margin-bottom:1.75rem;">Akun Anda telah aktif. Selamat bergabung di Sistem Informasi RAPBD.</p>
+        <a href="rapbd-dashboard.html" class="btn-primary-full" style="text-decoration:none;">
+          <i class="bi bi-speedometer2"></i> Masuk ke Dashboard
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* Particles */
+(function(){const c=document.getElementById('pc'),ctx=c.getContext('2d');let W,H,pts;const COLS=['rgba(26,75,140,','rgba(37,99,192,','rgba(245,158,11,'];function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}function mk(){const r=1.2+Math.random()*2.4;return{x:Math.random()*W,y:Math.random()*H,r,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,color:COLS[Math.floor(Math.random()*3)],a:.06+Math.random()*.14};}function init(){resize();pts=Array.from({length:Math.min(90,Math.floor(W*H/10000))},mk);}function draw(){ctx.clearRect(0,0,W,H);for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(26,75,140,${.05*(1-d/120)})`;ctx.lineWidth=.5;ctx.stroke();}}pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color+p.a+')';ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;});requestAnimationFrame(draw);}window.addEventListener('resize',init);init();draw();})();
+
+/* OTP logic */
+const otpInputs=()=>Array.from({length:6},(_,i)=>document.getElementById('otp'+i));
+
+function otpMove(el,idx){
+  el.value=el.value.slice(0,1);
+  el.classList.toggle('filled',el.value!=='');
+  checkOtpComplete();
+  if(el.value&&idx<5)document.getElementById('otp'+(idx+1)).focus();
+}
+function otpBack(e,idx){
+  if(e.key==='Backspace'&&!e.target.value&&idx>0)document.getElementById('otp'+(idx-1)).focus();
+}
+function checkOtpComplete(){
+  const vals=otpInputs().map(i=>i.value);
+  const complete=vals.every(v=>v!=='');
+  document.getElementById('btnVerify').disabled=!complete;
+}
+
+/* Timer */
+let timeLeft=120,timerInterval=null;
+function startTimer(){
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    const m=String(Math.floor(timeLeft/60)).padStart(2,'0');
+    const s=String(timeLeft%60).padStart(2,'0');
+    document.getElementById('timerCount').textContent=m+':'+s;
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      document.getElementById('timerWrap').classList.add('d-none');
+      document.getElementById('resendWrap').classList.remove('d-none');
+    }
+  },1000);
+}
+startTimer();
+
+function resendCode(){
+  timeLeft=120;
+  document.getElementById('timerWrap').classList.remove('d-none');
+  document.getElementById('resendWrap').classList.add('d-none');
+  document.getElementById('resendAlert').classList.remove('d-none');
+  document.getElementById('errorAlert').classList.add('d-none');
+  // Reset OTP
+  otpInputs().forEach(i=>{i.value='';i.classList.remove('filled');});
+  document.getElementById('btnVerify').disabled=true;
+  clearInterval(timerInterval);
+  startTimer();
+  setTimeout(()=>document.getElementById('resendAlert').classList.add('d-none'),4000);
+}
+
+function handleVerify(){
+  const code=otpInputs().map(i=>i.value).join('');
+  const btn=document.getElementById('btnVerify');
+  btn.innerHTML='<span class="spinner-border spinner-border-sm"></span>&nbsp;Memverifikasi...';
+  btn.disabled=true;
+  document.getElementById('errorAlert').classList.add('d-none');
+
+  setTimeout(()=>{
+    // Demo: code '123456' = success, anything else = error
+    if(code==='123456'||true){ // remove ||true in production
+      document.getElementById('verifyView').classList.add('d-none');
+      document.getElementById('verifiedView').classList.remove('d-none');
+    } else {
+      document.getElementById('errorAlert').classList.remove('d-none');
+      otpInputs().forEach(i=>{i.value='';i.classList.remove('filled');});
+      document.getElementById('otp0').focus();
+      btn.innerHTML='<i class="bi bi-patch-check"></i> Verifikasi Email';
+      btn.disabled=false;
+    }
+  },1800);
+}
+
+function handleLogout(){
+  if(confirm('Yakin ingin keluar?'))window.location.href='rapbd-login.html';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAPBD — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <style>
+    :root {
+      --primary:       #1a4b8c;
+      --primary-light: #2563c0;
+      --primary-pale:  #e8f0fb;
+      --accent:        #f59e0b;
+      --accent-light:  #fef3c7;
+      --surface:       #ffffff;
+      --surface-2:     #f6f8fd;
+      --text-main:     #0f1d3b;
+      --text-muted:    #5f7296;
+      --border:        #d4ddf5;
+      --shadow-sm:     0 2px 12px rgba(26,75,140,.08);
+      --shadow-md:     0 8px 32px rgba(26,75,140,.14);
+      --shadow-lg:     0 20px 60px rgba(26,75,140,.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      background: #f0f4fd;
+      overflow: hidden;
+    }
+
+    /* ── Canvas particles ── */
+    #particles-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Layout ── */
+    .login-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+    }
+
+    /* ── Left brand panel ── */
+    .brand-panel {
+      flex: 0 0 46%;
+      background: linear-gradient(145deg, #0d2f6e 0%, #1a4b8c 45%, #2563c0 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 3.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-panel::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+    }
+
+    .brand-panel::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: -60px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: rgba(245,158,11,.08);
+    }
+
+    .brand-logo-wrap {
+      width: 88px; height: 88px;
+      background: rgba(255,255,255,.12);
+      border: 2px solid rgba(255,255,255,.22);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.75rem;
+      backdrop-filter: blur(8px);
+      animation: floatIcon 3.6s ease-in-out infinite;
+    }
+
+    .brand-logo-wrap i {
+      font-size: 2.6rem;
+      color: #fff;
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33%       { transform: translateY(-9px) rotate(-2deg); }
+      66%       { transform: translateY(-5px) rotate(2deg); }
+    }
+
+    .brand-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      margin-bottom: .75rem;
+      text-align: center;
+    }
+
+    .brand-subtitle {
+      font-size: .875rem;
+      color: rgba(255,255,255,.72);
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.65;
+      margin-bottom: 2.5rem;
+    }
+
+    .brand-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      justify-content: center;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .75rem;
+      color: rgba(255,255,255,.85);
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 100px;
+      padding: .3rem .85rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .brand-badge i { font-size: .85rem; color: var(--accent); }
+
+    .brand-year {
+      position: absolute;
+      bottom: 1.5rem;
+      font-size: .72rem;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Right form panel ── */
+    .form-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 2.5rem;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .form-panel::-webkit-scrollbar { display: none; }
+
+    .form-card {
+      width: 100%;
+      max-width: 430px;
+      animation: slideUp .55s cubic-bezier(.22,.68,0,1.2) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-header { margin-bottom: 2.25rem; }
+
+    .form-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--primary-light);
+      background: var(--primary-pale);
+      border-radius: 100px;
+      padding: .3rem .9rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-eyebrow::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(.7); }
+    }
+
+    .form-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.65rem, 3vw, 2rem);
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+      margin-bottom: .5rem;
+    }
+
+    .form-desc {
+      font-size: .85rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Form inputs ── */
+    .input-group-custom {
+      position: relative;
+      margin-bottom: 1.15rem;
+    }
+
+    .input-label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: .45rem;
+      letter-spacing: .02em;
+    }
+
+    .input-field {
+      width: 100%;
+      height: 50px;
+      padding: 0 3rem 0 3rem;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: .88rem;
+      color: var(--text-main);
+      background: var(--surface);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+
+    .input-field::placeholder { color: #b0bcd6; }
+
+    .input-field:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3.5px rgba(37,99,192,.12);
+    }
+
+    .input-icon-left {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .input-icon-right {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color .15s;
+    }
+
+    .input-icon-right:hover { color: var(--primary); }
+
+    /* ── Role select ── */
+    .role-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .role-option {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .role-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+    }
+
+    .role-label {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .7rem .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all .18s;
+      user-select: none;
+    }
+
+    .role-label i { font-size: 1rem; }
+
+    .role-option input:checked + .role-label {
+      border-color: var(--primary-light);
+      background: var(--primary-pale);
+      color: var(--primary);
+    }
+
+    .role-option input:checked + .role-label i { color: var(--primary-light); }
+
+    .role-label:hover {
+      border-color: #b0c4e8;
+      background: var(--surface-2);
+    }
+
+    /* ── Remember / Forgot ── */
+    .row-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .custom-check {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .custom-check input[type="checkbox"] {
+      width: 17px; height: 17px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .custom-check span {
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
+
+    .forgot-link {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--primary-light);
+      text-decoration: none;
+      transition: color .15s;
+    }
+
+    .forgot-link:hover { color: var(--primary); text-decoration: underline; }
+
+    /* ── Submit button ── */
+    .btn-login {
+      width: 100%;
+      height: 52px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: #fff;
+      font-family: inherit;
+      font-size: .92rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      transition: transform .18s, box-shadow .18s;
+      box-shadow: 0 4px 18px rgba(26,75,140,.3);
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(26,75,140,.38);
+    }
+
+    .btn-login:active { transform: translateY(0); }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .divider hr {
+      flex: 1;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .divider span {
+      font-size: .75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* ── Footer info ── */
+    .form-footer {
+      text-align: center;
+      padding: 1rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: .76rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .form-footer strong {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* ── MOBILE: hide brand panel, show compact header ── */
+    .mobile-brand {
+      display: none;
+    }
+
+    /* ═══════════════════════
+       RESPONSIVE BREAKPOINTS
+       ═══════════════════════ */
+
+    /* Tablet portrait & large phone (< 992px) */
+    @media (max-width: 991.98px) {
+      html, body { overflow: auto; }
+
+      .login-wrapper { flex-direction: column; min-height: 100vh; }
+
+      .brand-panel {
+        flex: none;
+        min-height: 220px;
+        padding: 2rem 2rem 1.75rem;
+      }
+
+      .brand-logo-wrap { width: 64px; height: 64px; border-radius: 18px; margin-bottom: 1rem; }
+      .brand-logo-wrap i { font-size: 1.8rem; }
+      .brand-title { font-size: 1.6rem; }
+      .brand-subtitle { font-size: .8rem; margin-bottom: 1.25rem; }
+
+      .form-panel {
+        flex: 1;
+        padding: 2rem 1.5rem 2.5rem;
+        overflow-y: visible;
+      }
+    }
+
+    /* Phone (< 576px) */
+    @media (max-width: 575.98px) {
+      .brand-panel { min-height: 190px; padding: 1.5rem 1.25rem; }
+      .brand-logo-wrap { width: 56px; height: 56px; border-radius: 14px; }
+      .brand-logo-wrap i { font-size: 1.55rem; }
+      .brand-title { font-size: 1.4rem; }
+      .brand-badge { font-size: .68rem; }
+      .form-panel { padding: 1.75rem 1rem 2rem; }
+      .role-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Wide desktop (>= 1400px) */
+    @media (min-width: 1400px) {
+      .brand-panel { flex: 0 0 42%; }
+      .form-card { max-width: 460px; }
+    }
+
+    /* Ultra-wide (>= 1800px) */
+    @media (min-width: 1800px) {
+      .brand-panel { flex: 0 0 38%; }
+    }
+
+    /* Hide brand panel for very short viewports, show mobile-brand instead */
+    @media (max-height: 500px) and (max-width: 991.98px) {
+      .brand-panel { display: none; }
+      .mobile-brand { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<div class="login-wrapper">
+
+  <!-- ══ LEFT: Brand Panel ══ -->
+  <div class="brand-panel">
+    <div class="brand-logo-wrap">
+      <i class="bi bi-bank2"></i>
+    </div>
+
+    <h1 class="brand-title">Sistem Informasi<br>RAPBD</h1>
+    <p class="brand-subtitle">
+      Rancangan Anggaran Pendapatan dan Belanja Daerah — platform pengelolaan anggaran daerah yang terintegrasi dan transparan.
+    </p>
+
+    <div class="brand-badges">
+      <span class="brand-badge"><i class="bi bi-shield-check-fill"></i> Keamanan Data</span>
+      <span class="brand-badge"><i class="bi bi-graph-up-arrow"></i> Analitik Real-time</span>
+      <span class="brand-badge"><i class="bi bi-file-earmark-check-fill"></i> Akuntabel</span>
+    </div>
+
+    <span class="brand-year">Pemerintah Daerah &nbsp;·&nbsp; &copy; 2025</span>
+  </div>
+
+  <!-- ══ RIGHT: Form Panel ══ -->
+  <div class="form-panel">
+    <!-- Mobile-only compact brand (shown only if brand-panel hidden) -->
+    <div class="mobile-brand" style="justify-content:center;align-items:center;gap:.75rem;margin-bottom:1.5rem;">
+      <i class="bi bi-bank2" style="font-size:1.6rem;color:var(--primary);"></i>
+      <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.2rem;color:var(--text-main);">Sistem RAPBD</span>
+    </div>
+
+    <div class="form-card">
+
+      <!-- Header -->
+      <div class="form-header">
+        <span class="form-eyebrow">Portal Pengguna</span>
+        <h2 class="form-heading">Selamat Datang<br>Kembali 👋</h2>
+        <p class="form-desc">Masuk ke akun Anda untuk mengakses dashboard RAPBD.</p>
+      </div>
+
+      <!-- Role selector -->
+      <div class="mb-1">
+        <label class="input-label">Login Sebagai</label>
+        <div class="role-grid">
+          <label class="role-option">
+            <input type="radio" name="role" value="admin" checked />
+            <span class="role-label">
+              <i class="bi bi-person-gear"></i> Administrator
+            </span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="role" value="perencanaan" />
+            <span class="role-label">
+              <i class="bi bi-clipboard2-data"></i> Perencanaan
+            </span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="role" value="keuangan" />
+            <span class="role-label">
+              <i class="bi bi-currency-dollar"></i> Keuangan
+            </span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="role" value="pimpinan" />
+            <span class="role-label">
+              <i class="bi bi-person-badge"></i> Pimpinan
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Username -->
+      <div class="input-group-custom">
+        <label class="input-label" for="username">Username / NIP</label>
+        <i class="bi bi-person input-icon-left"></i>
+        <input class="input-field" id="username" type="text" placeholder="Masukkan username atau NIP" autocomplete="username" />
+      </div>
+
+      <!-- Password -->
+      <div class="input-group-custom">
+        <label class="input-label" for="password">Kata Sandi</label>
+        <i class="bi bi-lock input-icon-left"></i>
+        <input class="input-field" id="password" type="password" placeholder="Masukkan kata sandi" autocomplete="current-password" />
+        <i class="bi bi-eye input-icon-right" id="toggle-pw" title="Tampilkan kata sandi"></i>
+      </div>
+
+      <!-- Remember / Forgot -->
+      <div class="row-options">
+        <label class="custom-check">
+          <input type="checkbox" id="remember" />
+          <span>Ingat saya</span>
+        </label>
+        <a href="#" class="forgot-link">Lupa kata sandi?</a>
+      </div>
+
+      <!-- Submit -->
+      <button type="button" class="btn-login" id="btn-login">
+        <i class="bi bi-box-arrow-in-right"></i>
+        Masuk ke Dashboard
+      </button>
+
+      <!-- Divider -->
+      <div class="divider">
+        <hr /><span>Informasi Akses</span><hr />
+      </div>
+
+      <!-- Footer info -->
+      <div class="form-footer">
+        Akses sistem hanya untuk <strong>pengguna yang berwenang</strong>.<br>
+        Hubungi <strong>Administrator TI</strong> jika mengalami kendala login.<br>
+        <span style="color:#b0bcd6;">Versi 3.2.1 &nbsp;·&nbsp; Tahun Anggaran 2025</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ── Particle canvas ── */
+(function () {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles;
+
+  const COLORS = ['rgba(26,75,140,', 'rgba(37,99,192,', 'rgba(245,158,11,'];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function makeParticle() {
+    const r = 1.2 + Math.random() * 2.4;
+    return {
+      x:  Math.random() * W,
+      y:  Math.random() * H,
+      r,
+      vx: (Math.random() - .5) * .28,
+      vy: (Math.random() - .5) * .28,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      a:  .06 + Math.random() * .14,
+    };
+  }
+
+  function init() {
+    resize();
+    const count = Math.min(90, Math.floor(W * H / 10000));
+    particles = Array.from({ length: count }, makeParticle);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    /* draw connections */
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(26,75,140,${.05 * (1 - dist / 120)})`;
+          ctx.lineWidth = .5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    /* draw dots */
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + p.a + ')';
+      ctx.fill();
+
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < -10) p.x = W + 10;
+      if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10;
+      if (p.y > H + 10) p.y = -10;
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', init);
+  init();
+  draw();
+})();
+
+/* ── Toggle password ── */
+document.getElementById('toggle-pw').addEventListener('click', function () {
+  const pw = document.getElementById('password');
+  const isHidden = pw.type === 'password';
+  pw.type = isHidden ? 'text' : 'password';
+  this.className = isHidden ? 'bi bi-eye-slash input-icon-right' : 'bi bi-eye input-icon-right';
+});
+
+/* ── Login button ripple/feedback ── */
+document.getElementById('btn-login').addEventListener('click', function () {
+  const btn = this;
+  const original = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }, 2000);
+});
+</script>
+</body>
+</html>
