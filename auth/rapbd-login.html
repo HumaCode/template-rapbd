@@ -160,12 +160,11 @@
       text-transform: uppercase;
     }
 
-    /* ── Right form panel ── */
     .form-panel {
       flex: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
       padding: 2rem 2.5rem;
       overflow-y: auto;
       scrollbar-width: none;
@@ -177,6 +176,7 @@
     .form-card {
       width: 100%;
       max-width: 430px;
+      margin: auto 0;
       animation: slideUp .55s cubic-bezier(.22,.68,0,1.2) both;
     }
 
@@ -286,54 +286,7 @@
 
     .input-icon-right:hover { color: var(--primary); }
 
-    /* ── Role select ── */
-    .role-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .6rem;
-      margin-bottom: 1.15rem;
-    }
 
-    .role-option {
-      position: relative;
-      cursor: pointer;
-    }
-
-    .role-option input[type="radio"] {
-      position: absolute;
-      opacity: 0;
-      width: 0; height: 0;
-    }
-
-    .role-label {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      padding: .7rem .9rem;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      background: var(--surface);
-      font-size: .8rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      transition: all .18s;
-      user-select: none;
-    }
-
-    .role-label i { font-size: 1rem; }
-
-    .role-option input:checked + .role-label {
-      border-color: var(--primary-light);
-      background: var(--primary-pale);
-      color: var(--primary);
-    }
-
-    .role-option input:checked + .role-label i { color: var(--primary-light); }
-
-    .role-label:hover {
-      border-color: #b0c4e8;
-      background: var(--surface-2);
-    }
 
     /* ── Remember / Forgot ── */
     .row-options {
@@ -451,14 +404,19 @@
 
     /* Tablet portrait & large phone (< 992px) */
     @media (max-width: 991.98px) {
-      html, body { overflow: auto; }
+      html, body { height: auto; overflow: auto; }
 
       .login-wrapper { flex-direction: column; min-height: 100vh; }
 
       .brand-panel {
         flex: none;
         min-height: 220px;
-        padding: 2rem 2rem 1.75rem;
+        padding: 2rem 2rem;
+      }
+      .brand-year {
+        position: relative;
+        bottom: auto;
+        margin-top: 2rem;
       }
 
       .brand-logo-wrap { width: 64px; height: 64px; border-radius: 18px; margin-bottom: 1rem; }
@@ -476,12 +434,12 @@
     /* Phone (< 576px) */
     @media (max-width: 575.98px) {
       .brand-panel { min-height: 190px; padding: 1.5rem 1.25rem; }
+      .brand-year { margin-top: 1.5rem; }
       .brand-logo-wrap { width: 56px; height: 56px; border-radius: 14px; }
       .brand-logo-wrap i { font-size: 1.55rem; }
       .brand-title { font-size: 1.4rem; }
       .brand-badge { font-size: .68rem; }
       .form-panel { padding: 1.75rem 1rem 2rem; }
-      .role-grid { grid-template-columns: 1fr; }
     }
 
     /* Wide desktop (>= 1400px) */
@@ -543,37 +501,6 @@
         <span class="form-eyebrow">Portal Pengguna</span>
         <h2 class="form-heading">Selamat Datang<br>Kembali 👋</h2>
         <p class="form-desc">Masuk ke akun Anda untuk mengakses dashboard RAPBD.</p>
-      </div>
-
-      <!-- Role selector -->
-      <div class="mb-1">
-        <label class="input-label">Login Sebagai</label>
-        <div class="role-grid">
-          <label class="role-option">
-            <input type="radio" name="role" value="admin" checked />
-            <span class="role-label">
-              <i class="bi bi-person-gear"></i> Administrator
-            </span>
-          </label>
-          <label class="role-option">
-            <input type="radio" name="role" value="perencanaan" />
-            <span class="role-label">
-              <i class="bi bi-clipboard2-data"></i> Perencanaan
-            </span>
-          </label>
-          <label class="role-option">
-            <input type="radio" name="role" value="keuangan" />
-            <span class="role-label">
-              <i class="bi bi-currency-dollar"></i> Keuangan
-            </span>
-          </label>
-          <label class="role-option">
-            <input type="radio" name="role" value="pimpinan" />
-            <span class="role-label">
-              <i class="bi bi-person-badge"></i> Pimpinan
-            </span>
-          </label>
-        </div>
       </div>
 
       <!-- Username -->
