@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>RAPBD — RKA Pengeluaran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<style>
+/* ═══════════════════ TOKENS ═══════════════════ */
+:root{
+  --primary:#1a4b8c;--primary-light:#2563c0;--primary-pale:#e8f0fb;
+  --accent:#f59e0b;
+  /* RKA identity — Purple (sesuai gambar) */
+  --rka:#6d28d9;--rka-mid:#7c3aed;--rka-light:#8b5cf6;
+  --rka-pale:#f5f3ff;--rka-pale2:#ede9fe;--rka-border:rgba(109,40,217,.14);
+  --sidebar-w:260px;--sidebar-w-collapsed:72px;--topbar-h:64px;
+  --surface:#fff;--surface-2:#f4f7fd;
+  --text-main:#0f1d3b;--text-muted:#607090;
+  --border:#d6e0f5;--border-light:#eaf0fb;
+  --shadow-xs:0 1px 4px rgba(26,75,140,.07);
+  --shadow-sm:0 2px 12px rgba(26,75,140,.09);
+  --shadow-md:0 6px 28px rgba(26,75,140,.13);
+  --shadow-lg:0 16px 52px rgba(26,75,140,.18);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;
+  --transition:.22s cubic-bezier(.4,0,.2,1);
+  --ctrl-h:36px;--ctrl-radius:8px;
+  --ctrl-border:1.5px solid var(--border);
+  --ctrl-font:.8rem;--ctrl-px:.85rem;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;font-size:.875rem;color:var(--text-main);background:var(--surface-2);overflow-x:hidden;}
+.no-scroll::-webkit-scrollbar{display:none;}
+.no-scroll{scrollbar-width:none;-ms-overflow-style:none;}
+
+/* ═══════════════════ SIDEBAR ═══════════════════ */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--border-light);display:flex;flex-direction:column;z-index:200;transition:width var(--transition);overflow:hidden;box-shadow:var(--shadow-sm);}
+body.collapsed .sidebar{width:var(--sidebar-w-collapsed);}
+.sidebar-brand{display:flex;align-items:center;gap:.85rem;padding:0 1.1rem;height:var(--topbar-h);border-bottom:1px solid var(--border-light);flex-shrink:0;overflow:hidden;text-decoration:none;}
+.sidebar-brand-icon{width:40px;height:40px;min-width:40px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(26,75,140,.28);animation:brandPulse 3.8s ease-in-out infinite;}
+.sidebar-brand-icon i{font-size:1.2rem;color:#fff;}
+@keyframes brandPulse{0%,100%{transform:scale(1) rotate(0deg);}40%{transform:scale(1.06) rotate(-3deg);}70%{transform:scale(1.03) rotate(2deg);}}
+.sidebar-brand-text{overflow:hidden;white-space:nowrap;}
+.sidebar-brand-text strong{display:block;font-family:'Playfair Display',serif;font-size:.95rem;font-weight:800;color:var(--primary);line-height:1.2;}
+.sidebar-brand-text span{font-size:.68rem;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;}
+body.collapsed .sidebar-brand-text{opacity:0;width:0;}
+.sidebar-nav{flex:1;overflow-y:auto;padding:.75rem 0 1rem;}
+.sidebar-nav::-webkit-scrollbar{width:4px;}
+.sidebar-nav::-webkit-scrollbar-track{background:transparent;}
+.sidebar-nav::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.nav-category{padding:.55rem 1.15rem .25rem;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b0c0d8;white-space:nowrap;overflow:hidden;transition:opacity var(--transition);}
+body.collapsed .nav-category{opacity:0;height:0;padding:0;overflow:hidden;}
+.nav-item-wrap{padding:0 .6rem .1rem;}
+.nav-link-item{display:flex;align-items:center;gap:.75rem;padding:.62rem .75rem;border-radius:var(--radius-sm);color:var(--text-muted);text-decoration:none;font-size:.825rem;font-weight:500;white-space:nowrap;overflow:hidden;position:relative;transition:background var(--transition),color var(--transition);}
+.nav-link-item:hover{background:var(--primary-pale);color:var(--primary);}
+.nav-link-item.active{background:linear-gradient(90deg,var(--rka-pale),rgba(237,233,254,.4));color:var(--rka);font-weight:600;}
+.nav-link-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--rka-mid);border-radius:0 3px 3px 0;}
+.nav-icon{width:32px;height:32px;min-width:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:1rem;transition:background var(--transition),color var(--transition);}
+.nav-link-item:hover .nav-icon{background:rgba(26,75,140,.1);color:var(--primary);}
+.nav-link-item.active .nav-icon{background:rgba(109,40,217,.1);color:var(--rka);}
+.nav-label{flex:1;transition:opacity var(--transition);}
+body.collapsed .nav-label{opacity:0;width:0;overflow:hidden;}
+.nav-badge{font-size:.62rem;font-weight:700;padding:.15rem .45rem;border-radius:100px;background:var(--accent);color:#fff;line-height:1.4;}
+body.collapsed .nav-badge{opacity:0;width:0;overflow:hidden;}
+body.collapsed .nav-link-item{justify-content:center;}
+body.collapsed .nav-icon{margin:0;}
+.sidebar-footer{padding:.85rem .9rem;border-top:1px solid var(--border-light);flex-shrink:0;}
+.sidebar-user-mini{display:flex;align-items:center;gap:.75rem;padding:.5rem .6rem;border-radius:var(--radius-sm);background:var(--surface-2);overflow:hidden;}
+.sidebar-avatar{width:34px;height:34px;min-width:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary-light),#60a5fa);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;border:2px solid var(--border-light);}
+.sidebar-user-info{overflow:hidden;transition:opacity var(--transition);}
+.sidebar-user-info strong{display:block;font-size:.78rem;color:var(--text-main);white-space:nowrap;}
+.sidebar-user-info span{font-size:.68rem;color:var(--text-muted);white-space:nowrap;}
+body.collapsed .sidebar-user-info{opacity:0;width:0;}
+
+/* ═══════════════════ TOPBAR ═══════════════════ */
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-light);display:flex;align-items:center;padding:0 1.5rem;z-index:100;transition:left var(--transition);box-shadow:var(--shadow-xs);}
+body.collapsed .topbar{left:var(--sidebar-w-collapsed);}
+.topbar-left{display:flex;align-items:center;gap:.75rem;}
+.hamburger{width:38px;height:38px;border:none;background:var(--surface-2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:1.15rem;transition:all .2s;}
+.hamburger:hover{background:var(--primary-pale);color:var(--primary);}
+.topbar-title{font-size:.92rem;font-weight:700;color:var(--text-main);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:.6rem;}
+.tb-btn{width:38px;height:38px;border:none;background:transparent;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:1.05rem;position:relative;transition:all .18s;}
+.tb-btn:hover{background:var(--primary-pale);color:var(--primary);}
+.tb-notif-dot{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff;animation:pingDot 2s ease-in-out infinite;}
+@keyframes pingDot{0%,100%{transform:scale(1);}50%{transform:scale(1.4);opacity:.7;}}
+.user-trigger{display:flex;align-items:center;gap:.6rem;padding:.35rem .6rem .35rem .35rem;border-radius:var(--radius-md);cursor:pointer;transition:background var(--transition);position:relative;border:none;background:transparent;}
+.user-trigger:hover{background:var(--primary-pale);}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary-light),#60a5fa);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;color:#fff;border:2px solid var(--border-light);flex-shrink:0;}
+.user-info-name{display:block;font-size:.78rem;font-weight:700;color:var(--text-main);white-space:nowrap;}
+.user-info-email{display:block;font-size:.68rem;color:var(--text-muted);white-space:nowrap;}
+.user-caret{font-size:.7rem;color:var(--text-muted);transition:transform .2s;}
+.user-trigger.open .user-caret{transform:rotate(180deg);}
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:999;overflow:hidden;opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;transition:all .2s cubic-bezier(.4,0,.2,1);}
+.user-dropdown.show{opacity:1;transform:translateY(0) scale(1);pointer-events:all;}
+.dropdown-header-ud{padding:.9rem 1.1rem .75rem;background:linear-gradient(135deg,var(--primary-pale),#f0f5ff);border-bottom:1px solid var(--border-light);}
+.dropdown-header-ud strong{display:block;font-size:.82rem;font-weight:700;color:var(--text-main);}
+.dropdown-header-ud span{font-size:.7rem;color:var(--text-muted);}
+.dropdown-menu-list{padding:.4rem 0;}
+.dropdown-item-custom{display:flex;align-items:center;gap:.7rem;padding:.55rem 1.1rem;font-size:.8rem;color:var(--text-muted);text-decoration:none;transition:all .15s;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;}
+.dropdown-item-custom:hover{background:var(--primary-pale);color:var(--primary);}
+.dropdown-item-custom i{width:16px;text-align:center;}
+.dropdown-divider-ud{border-top:1px solid var(--border-light);margin:.3rem 0;}
+.btn-logout-dd{display:flex;align-items:center;gap:.6rem;padding:.55rem 1.1rem;font-size:.8rem;font-weight:600;color:#dc2626;background:transparent;border:none;cursor:pointer;width:100%;transition:background .15s;}
+.btn-logout-dd:hover{background:#fef2f2;}
+.btn-logout-dd i{width:16px;text-align:center;}
+
+/* ═══════════════════ MAIN WRAP ═══════════════════ */
+.main-wrap{margin-left:var(--sidebar-w);padding-top:var(--topbar-h);min-height:100vh;display:flex;flex-direction:column;transition:margin-left var(--transition);}
+body.collapsed .main-wrap{margin-left:var(--sidebar-w-collapsed);}
+.content{flex:1;padding:1.6rem 1.75rem;}
+
+/* ═══════════════════ BREADCRUMB ═══════════════════ */
+.breadcrumb-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;animation:fadeDown .4s ease both;}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
+.page-title-wrap{display:flex;align-items:center;gap:.7rem;}
+.page-title-icon{width:42px;height:42px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--rka),var(--rka-mid));display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;box-shadow:0 4px 14px rgba(109,40,217,.28);flex-shrink:0;}
+.page-title-text strong{display:block;font-size:1.05rem;font-weight:800;color:var(--text-main);}
+.page-title-text span{font-size:.75rem;color:var(--text-muted);}
+.breadcrumb-nav{display:flex;align-items:center;gap:.4rem;padding:.45rem 1rem;background:var(--surface);border:1px solid var(--border-light);border-radius:100px;box-shadow:var(--shadow-xs);}
+.breadcrumb-nav a,.breadcrumb-nav span{font-size:.73rem;font-weight:500;color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:.25rem;}
+.breadcrumb-nav a:hover{color:var(--primary);}
+.breadcrumb-nav .sep{color:var(--border);font-size:.7rem;}
+.breadcrumb-nav .current{color:var(--rka);font-weight:600;}
+
+/* ═══════════════════ FILTER CARD ═══════════════════ */
+.filter-card{
+  background:var(--surface);
+  border:1px solid var(--border-light);
+  border-radius:var(--radius-lg);
+  padding:1.1rem 1.25rem;
+  margin-bottom:1.25rem;
+  animation:cardIn .4s ease .05s both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.filter-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr auto;
+  gap:.75rem;
+  align-items:end;
+}
+.filter-label{font-size:.72rem;font-weight:700;color:var(--text-muted);margin-bottom:.35rem;letter-spacing:.03em;display:flex;align-items:center;gap:.3rem;}
+.filter-label i{color:var(--rka-light);font-size:.72rem;}
+.filter-select{
+  width:100%;height:38px;
+  padding:0 2.2rem 0 .85rem;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:inherit;font-size:.8rem;color:var(--text-main);
+  background-color:var(--surface-2);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' fill='%23607090' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .7rem center;
+  appearance:none;-webkit-appearance:none;
+  outline:none;cursor:pointer;
+  transition:border-color .2s,box-shadow .2s,background-color .2s;
+}
+.filter-select:focus{border-color:var(--rka-light);box-shadow:0 0 0 3px rgba(139,92,246,.12);background-color:var(--surface);}
+.filter-select:hover:not(:disabled){border-color:#c4b5fd;background-color:var(--surface);}
+.filter-select:disabled{opacity:.45;cursor:not-allowed;}
+
+.btn-tampil{
+  height:38px;padding:0 1.25rem;
+  border:none;border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,var(--rka),var(--rka-mid));
+  color:#fff;font-family:inherit;font-size:.82rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;gap:.45rem;
+  transition:all .18s;box-shadow:0 3px 12px rgba(109,40,217,.28);
+  white-space:nowrap;
+}
+.btn-tampil:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(109,40,217,.38);}
+.btn-tampil:active{transform:translateY(0);}
+
+/* ═══════════════════ RKA CARD ═══════════════════ */
+.rka-card{
+  background:var(--surface);
+  border:1px solid var(--border-light);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  animation:cardIn .4s ease .15s both;
+}
+
+/* ── Info header (Program / Kegiatan / Sub Kegiatan) ── */
+.rka-info-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:1.5rem;
+  padding:1.15rem 1.4rem;
+  background:var(--surface);
+  border-bottom:1px solid var(--border-light);
+  flex-wrap:wrap;
+}
+.rka-info-rows{display:flex;flex-direction:column;gap:.38rem;}
+.rka-info-row{display:flex;align-items:baseline;gap:.5rem;font-size:.8rem;}
+.rka-info-label{
+  font-weight:700;color:var(--text-muted);
+  min-width:90px;flex-shrink:0;
+  font-size:.75rem;letter-spacing:.01em;
+}
+.rka-info-sep{color:var(--text-muted);flex-shrink:0;}
+.rka-info-val{color:var(--text-main);font-weight:500;line-height:1.4;}
+.rka-info-val strong{font-weight:700;}
+
+.rka-info-actions{display:flex;align-items:center;gap:.65rem;flex-shrink:0;}
+
+/* Kembali button — merah/coral sesuai gambar */
+.btn-kembali{
+  height:36px;padding:0 1rem;
+  border:none;border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,#c2410c,#ea580c);
+  color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;gap:.4rem;
+  transition:all .18s;box-shadow:0 3px 10px rgba(194,65,12,.28);
+  white-space:nowrap;
+}
+.btn-kembali:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(194,65,12,.38);}
+
+/* Export Excel — hijau sesuai gambar */
+.btn-export{
+  height:36px;padding:0 1rem;
+  border:none;border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,#15803d,#16a34a);
+  color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;gap:.4rem;
+  transition:all .18s;box-shadow:0 3px 10px rgba(21,128,61,.28);
+  white-space:nowrap;
+}
+.btn-export:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(21,128,61,.38);}
+
+/* ═══════════════════ RKA TABLE ═══════════════════ */
+.rka-table-wrap{overflow-x:auto;}
+.rka-table-wrap::-webkit-scrollbar{height:5px;}
+.rka-table-wrap::-webkit-scrollbar-track{background:var(--surface-2);}
+.rka-table-wrap::-webkit-scrollbar-thumb{background:#c4b5fd;border-radius:4px;}
+
+table.rka{
+  width:100%;border-collapse:collapse;
+  min-width:1200px;
+  font-size:.78rem;
+}
+
+/* ── Column widths ── */
+table.rka col.c-no    {width:48px;}
+table.rka col.c-kode  {width:160px;}
+table.rka col.c-uraian{width:260px;}
+table.rka col.c-ang   {width:110px;}
+table.rka col.c-bulan {width:52px;}
+table.rka col.c-sisa  {width:110px;}
+
+/* ── THEAD ── */
+table.rka thead tr th{
+  background:linear-gradient(135deg,var(--rka),var(--rka-mid));
+  color:#fff;
+  padding:.65rem .75rem;
+  font-size:.68rem;font-weight:700;
+  text-align:center;
+  border:1px solid rgba(255,255,255,.15);
+  white-space:nowrap;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+table.rka thead tr th.th-uraian{text-align:left;padding-left:1rem;}
+table.rka thead tr th.th-anggaran{text-align:right;}
+table.rka thead tr th.th-sisa{text-align:right;}
+
+/* ── ROW: Level 1 — Rekening (bold, putih) ── */
+table.rka tbody tr.row-l1 td{
+  background:#fff;
+  font-weight:700;
+  color:var(--text-main);
+  padding:.72rem .75rem;
+  border-bottom:1px solid var(--border-light);
+  vertical-align:middle;
+}
+table.rka tbody tr.row-l1:hover td{background:#faf9ff;}
+
+/* ── ROW: Level 2 — Pekerjaan (semi-bold, abu ringan) ── */
+table.rka tbody tr.row-l2 td{
+  background:#fafafa;
+  font-weight:600;
+  color:var(--text-main);
+  padding:.65rem .75rem;
+  border-bottom:1px solid var(--border-light);
+  vertical-align:middle;
+}
+table.rka tbody tr.row-l2:hover td{background:#f5f3ff;}
+
+/* ── ROW: Level 3 — Rincian (normal, abu lebih terang) ── */
+table.rka tbody tr.row-l3 td{
+  background:#fff;
+  font-weight:400;
+  color:var(--text-main);
+  padding:.62rem .75rem;
+  border-bottom:1px solid var(--border-light);
+  vertical-align:middle;
+}
+table.rka tbody tr.row-l3:hover td{background:#faf9ff;}
+
+/* ── Row separator ── */
+table.rka tbody tr.row-sep td{
+  background:var(--rka-pale);
+  height:3px;padding:0;border:none;
+}
+
+/* Cell align */
+.td-no{text-align:center;}
+.td-kode{font-family:'Courier New',Courier,monospace;font-size:.75rem;font-weight:700;}
+.td-uraian{text-align:left;}
+.td-ang{text-align:right;font-family:'Courier New',Courier,monospace;font-weight:600;white-space:nowrap;}
+.td-bulan{text-align:center;font-family:'Courier New',Courier,monospace;font-size:.72rem;color:var(--text-muted);}
+.td-sisa{text-align:right;font-family:'Courier New',Courier,monospace;font-weight:700;white-space:nowrap;}
+
+/* Kode chip di tabel */
+.kode-cell{
+  display:inline-block;
+  font-family:'Courier New',Courier,monospace;
+  font-size:.72rem;font-weight:700;
+  background:var(--rka-pale2);color:var(--rka);
+  padding:.18rem .55rem;border-radius:5px;
+  border:1px solid var(--rka-border);
+  letter-spacing:.03em;
+}
+
+/* Sisa anggaran — berwarna sesuai kondisi */
+.sisa-plus{color:#16a34a;font-weight:700;}
+.sisa-minus{color:#dc2626;font-weight:700;}
+.sisa-zero{color:var(--text-muted);}
+
+/* Bulan nilai kosong */
+.bulan-dash{color:#cbd5e1;font-size:.8rem;}
+
+/* Row L2 — uraian pekerjaan, full span */
+.uraian-pekerjaan{font-weight:700;color:var(--text-main);padding-left:1.25rem;}
+
+/* Uraian rincian (level 3) — indent lebih */
+.uraian-rincian{padding-left:2.25rem;color:var(--text-muted);font-size:.77rem;}
+
+/* ── TFOOT — Total ── */
+table.rka tfoot tr td{
+  background:linear-gradient(90deg,var(--rka-pale),var(--surface-2));
+  font-weight:800;
+  color:var(--text-main);
+  padding:.72rem .75rem;
+  border-top:2px solid #c4b5fd;
+  font-size:.8rem;
+}
+table.rka tfoot .td-ang,
+table.rka tfoot .td-sisa{
+  color:var(--rka);
+  font-family:'Courier New',Courier,monospace;
+  font-size:.82rem;
+}
+
+/* ── Empty state ── */
+.rka-empty{padding:4rem 1rem;text-align:center;}
+.rka-empty-icon{width:72px;height:72px;border-radius:50%;background:var(--rka-pale2);border:2px solid #c4b5fd;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;color:var(--rka-mid);}
+.rka-empty h6{font-size:.9rem;font-weight:700;color:var(--text-main);margin-bottom:.35rem;}
+.rka-empty p{font-size:.78rem;color:var(--text-muted);}
+
+/* ═══════════════════ SUMMARY CARDS ═══════════════════ */
+.summary-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1rem;
+  margin-bottom:1.25rem;
+  animation:cardIn .4s ease .1s both;
+}
+.sum-card{
+  background:var(--surface);
+  border:1px solid var(--border-light);
+  border-radius:var(--radius-md);
+  padding:1rem 1.15rem;
+  display:flex;align-items:center;gap:.85rem;
+  transition:transform .2s,box-shadow .2s;
+}
+.sum-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.sum-icon{width:42px;height:42px;min-width:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.sum-icon.purple{background:var(--rka-pale2);color:var(--rka);}
+.sum-icon.green{background:#d1fae5;color:#059669;}
+.sum-icon.amber{background:#fef3c7;color:#b45309;}
+.sum-icon.blue{background:var(--primary-pale);color:var(--primary);}
+.sum-val{font-size:1.05rem;font-weight:800;color:var(--text-main);line-height:1;letter-spacing:-.02em;}
+.sum-lbl{font-size:.68rem;color:var(--text-muted);margin-top:.18rem;}
+
+/* Tahun badge di info header */
+.tahun-badge{
+  display:inline-flex;align-items:center;gap:.3rem;
+  font-size:.68rem;font-weight:700;
+  padding:.22rem .65rem;border-radius:100px;
+  background:var(--rka-pale2);color:var(--rka);
+  border:1px solid var(--rka-border);
+  margin-left:.5rem;
+}
+
+/* Print button */
+.btn-print{
+  height:36px;padding:0 .9rem;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--surface);color:var(--text-muted);
+  font-family:inherit;font-size:.78rem;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:.4rem;
+  transition:all .18s;
+}
+.btn-print:hover{border-color:var(--primary-mid);color:var(--primary);background:var(--primary-pale);}
+
+/* ═══════════════════ TOAST ═══════════════════ */
+.toast-stack{position:fixed;bottom:1.5rem;right:1.5rem;z-index:2000;display:flex;flex-direction:column;gap:.5rem;}
+.toast-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1.1rem;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:.8rem;font-weight:600;color:var(--text-main);min-width:240px;max-width:340px;animation:toastIn .3s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+.toast-item.out{animation:toastOut .25s ease both;}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px) scale(.96);}}
+.toast-dot{width:30px;height:30px;min-width:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.88rem;}
+.toast-dot.info{background:var(--rka-pale2);color:var(--rka);}
+.toast-dot.success{background:#d1fae5;color:#059669;}
+
+/* FAB */
+.fab{position:fixed;bottom:2rem;right:2rem;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--rka),var(--rka-mid));border:none;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;cursor:pointer;box-shadow:0 6px 24px rgba(109,40,217,.35);z-index:150;transition:transform .25s,box-shadow .25s,opacity .25s;opacity:0;pointer-events:none;}
+.fab.visible{opacity:1;pointer-events:all;}
+.fab:hover{transform:translateY(-4px) scale(1.1);box-shadow:0 10px 32px rgba(109,40,217,.45);}
+.fab-ring{position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(139,92,246,.35);animation:fabRing 2.4s ease-in-out infinite;}
+@keyframes fabRing{0%,100%{transform:scale(1);opacity:.8;}50%{transform:scale(1.18);opacity:.2;}}
+
+/* Footer */
+.main-footer{background:var(--surface);border-top:1px solid var(--border-light);padding:.9rem 1.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+.footer-brand{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--text-muted);}
+.footer-brand i{color:var(--rka-mid);}
+.footer-right{display:flex;align-items:center;gap:1rem;}
+.footer-link{font-size:.7rem;color:var(--text-muted);text-decoration:none;transition:color .15s;}
+.footer-link:hover{color:var(--primary);}
+.footer-ver{font-size:.68rem;color:#b0bcd4;padding:.2rem .6rem;background:var(--surface-2);border-radius:100px;}
+
+/* Mobile overlay */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.45);z-index:190;backdrop-filter:blur(2px);}
+.sidebar-overlay.show{display:block;}
+
+/* ═══════════════════ RESPONSIVE ═══════════════════ */
+@media(max-width:1199px){
+  .summary-row{grid-template-columns:repeat(2,1fr);}
+  .filter-grid{grid-template-columns:1fr 1fr;gap:.65rem;}
+  .filter-grid .btn-tampil-wrap{grid-column:1/-1;display:flex;justify-content:flex-start;}
+}
+@media(max-width:899px){
+  .sidebar{transform:translateX(-100%);width:var(--sidebar-w)!important;transition:transform var(--transition);}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .main-wrap{margin-left:0!important;}
+  .topbar{left:0!important;}
+  .content{padding:1.25rem 1rem;}
+  .rka-info-header{flex-direction:column;align-items:flex-start;gap:.85rem;}
+  .rka-info-actions{width:100%;}
+}
+@media(max-width:575px){
+  .topbar{padding:0 .85rem;}
+  .user-info{display:none;}.user-caret{display:none;}
+  .content{padding:1rem .85rem;}
+  .summary-row{grid-template-columns:1fr 1fr;}
+  .filter-grid{grid-template-columns:1fr;}
+  .rka-info-actions{flex-wrap:wrap;}
+  .main-footer{flex-direction:column;text-align:center;}
+  .fab{bottom:1.25rem;right:1.25rem;}
+}
+@media(min-width:1400px){.content{padding:2rem 2.25rem;}}
+
+/* ═══ PRINT STYLES ═══ */
+@media print{
+  .sidebar,.topbar,.filter-card,.summary-row,.fab,.main-footer,
+  .rka-info-actions,.breadcrumb-bar{display:none!important;}
+  .main-wrap{margin-left:0!important;padding-top:0!important;}
+  body{background:#fff;}
+  .rka-card{border:none;border-radius:0;box-shadow:none;}
+  table.rka{font-size:.72rem;}
+  .content{padding:.5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar" id="sidebar">
+  <a class="sidebar-brand" href="rapbd-dashboard.html">
+    <div class="sidebar-brand-icon"><i class="bi bi-bank2"></i></div>
+    <div class="sidebar-brand-text"><strong>RAPBD</strong><span>Sistem Informasi</span></div>
+  </a>
+  <nav class="sidebar-nav no-scroll">
+    <div class="nav-category">Utama</div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="rapbd-dashboard.html"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span><span class="nav-label">Dashboard</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-bell"></i></span><span class="nav-label">Notifikasi</span><span class="nav-badge">5</span></a></div>
+
+    <div class="nav-category" style="margin-top:.4rem;">Master Data</div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="rapbd-urusan.html"><span class="nav-icon"><i class="bi bi-grid-1x2"></i></span><span class="nav-label">Urusan</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="rapbd-bidang.html"><span class="nav-icon"><i class="bi bi-diagram-2"></i></span><span class="nav-label">Bidang</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="rapbd-program.html"><span class="nav-icon"><i class="bi bi-collection"></i></span><span class="nav-label">Program</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="rapbd-kegiatan.html"><span class="nav-icon"><i class="bi bi-list-task"></i></span><span class="nav-label">Kegiatan</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="rapbd-subkegiatan.html"><span class="nav-icon"><i class="bi bi-card-checklist"></i></span><span class="nav-label">Sub Kegiatan</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="rapbd-kategori-belanja.html"><span class="nav-icon"><i class="bi bi-tags-fill"></i></span><span class="nav-label">Kategori Belanja</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-building"></i></span><span class="nav-label">SKPD / OPD</span></a></div>
+
+    <div class="nav-category" style="margin-top:.4rem;">Perencanaan</div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-file-earmark-text"></i></span><span class="nav-label">RKA SKPD</span><span class="nav-badge" style="background:#3b82f6;">3</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-clipboard-data"></i></span><span class="nav-label">RKPD</span></a></div>
+
+    <div class="nav-category" style="margin-top:.4rem;">Anggaran</div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-currency-dollar"></i></span><span class="nav-label">DPA SKPD</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-graph-up-arrow"></i></span><span class="nav-label">Realisasi Anggaran</span></a></div>
+
+    <div class="nav-category" style="margin-top:.4rem;">Laporan</div>
+    <div class="nav-item-wrap"><a class="nav-link-item active" href="#"><span class="nav-icon"><i class="bi bi-file-earmark-ruled"></i></span><span class="nav-label">RKA Pengeluaran</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-file-earmark-bar-graph"></i></span><span class="nav-label">Laporan APBD</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-printer"></i></span><span class="nav-label">Cetak Dokumen</span></a></div>
+
+    <div class="nav-category" style="margin-top:.4rem;">Pengaturan</div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-people"></i></span><span class="nav-label">Manajemen Pengguna</span></a></div>
+    <div class="nav-item-wrap"><a class="nav-link-item" href="#"><span class="nav-icon"><i class="bi bi-gear"></i></span><span class="nav-label">Konfigurasi Sistem</span></a></div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user-mini">
+      <div class="sidebar-avatar">AH</div>
+      <div class="sidebar-user-info"><strong>Ahmad Hidayat</strong><span>Administrator</span></div>
+    </div>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ══════════ TOPBAR ══════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="hamburger" id="hamburgerBtn"><i class="bi bi-list" id="hamburgerIcon"></i></button>
+    <span class="topbar-title d-none d-md-block">Sistem Informasi RAPBD</span>
+  </div>
+  <div class="topbar-right">
+    <button class="tb-btn d-none d-sm-flex"><i class="bi bi-search"></i></button>
+    <button class="tb-btn"><i class="bi bi-bell"></i><span class="tb-notif-dot"></span></button>
+    <button class="tb-btn d-none d-sm-flex"><i class="bi bi-gear"></i></button>
+    <div style="position:relative;">
+      <button class="user-trigger" id="userTrigger">
+        <div class="user-avatar">AH</div>
+        <div class="user-info">
+          <span class="user-info-name">Ahmad Hidayat</span>
+          <span class="user-info-email">a.hidayat@pemda.go.id</span>
+        </div>
+        <i class="bi bi-chevron-down user-caret"></i>
+      </button>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="dropdown-header-ud"><strong>Ahmad Hidayat</strong><span>Administrator</span></div>
+        <div class="dropdown-menu-list">
+          <button class="dropdown-item-custom"><i class="bi bi-person"></i> Profil Saya</button>
+          <button class="dropdown-item-custom"><i class="bi bi-lock"></i> Ganti Kata Sandi</button>
+        </div>
+        <div class="dropdown-divider-ud"></div>
+        <button class="btn-logout-dd"><i class="bi bi-box-arrow-right"></i> Keluar</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main-wrap" id="mainContent">
+<div class="content">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-bar">
+    <div class="page-title-wrap">
+      <div class="page-title-icon"><i class="bi bi-file-earmark-ruled"></i></div>
+      <div class="page-title-text">
+        <strong>RKA Pengeluaran</strong>
+        <span>Rencana Kerja dan Anggaran belanja per sub kegiatan</span>
+      </div>
+    </div>
+    <nav class="breadcrumb-nav">
+      <a href="rapbd-dashboard.html"><i class="bi bi-house"></i> Home</a>
+      <span class="sep"><i class="bi bi-chevron-right"></i></span>
+      <a href="#">Laporan</a>
+      <span class="sep"><i class="bi bi-chevron-right"></i></span>
+      <span class="current"><i class="bi bi-file-earmark-ruled"></i> RKA Pengeluaran</span>
+    </nav>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="filter-card">
+    <div class="filter-grid" id="filterGrid">
+      <div>
+        <div class="filter-label"><i class="bi bi-grid-1x2"></i> Program</div>
+        <select class="filter-select" id="fProgram">
+          <option value="">— Pilih Program —</option>
+        </select>
+      </div>
+      <div>
+        <div class="filter-label"><i class="bi bi-list-task"></i> Kegiatan</div>
+        <select class="filter-select" id="fKegiatan" disabled>
+          <option value="">— Pilih program dulu —</option>
+        </select>
+      </div>
+      <div>
+        <div class="filter-label"><i class="bi bi-card-checklist"></i> Sub Kegiatan</div>
+        <select class="filter-select" id="fSubKegiatan" disabled>
+          <option value="">— Pilih kegiatan dulu —</option>
+        </select>
+      </div>
+      <div class="btn-tampil-wrap">
+        <div class="filter-label">&nbsp;</div>
+        <button class="btn-tampil" id="btnTampil">
+          <i class="bi bi-eye-fill"></i> Tampilkan RKA
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary cards — hidden until data loaded -->
+  <div class="summary-row d-none" id="summaryRow">
+    <div class="sum-card">
+      <div class="sum-icon purple"><i class="bi bi-cash-stack"></i></div>
+      <div><div class="sum-val" id="sumTotal">—</div><div class="sum-lbl">Total Anggaran</div></div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon green"><i class="bi bi-check-circle-fill"></i></div>
+      <div><div class="sum-val" id="sumRealisasi">—</div><div class="sum-lbl">Total Realisasi</div></div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon amber"><i class="bi bi-hourglass-split"></i></div>
+      <div><div class="sum-val" id="sumSisa">—</div><div class="sum-lbl">Sisa Anggaran</div></div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon blue"><i class="bi bi-percent"></i></div>
+      <div><div class="sum-val" id="sumPct">—</div><div class="sum-lbl">Persentase Serap</div></div>
+    </div>
+  </div>
+
+  <!-- RKA Card -->
+  <div class="rka-card">
+
+    <!-- Info header -->
+    <div class="rka-info-header" id="rkaInfoHeader">
+      <div class="rka-info-rows" id="rkaInfoRows">
+        <div class="rka-info-row" style="color:var(--text-muted);font-style:italic;font-size:.8rem;">
+          <i class="bi bi-arrow-up-left" style="margin-right:.35rem;"></i>
+          Pilih Program, Kegiatan, dan Sub Kegiatan lalu klik <strong style="color:var(--rka);font-style:normal;">Tampilkan RKA</strong>
+        </div>
+      </div>
+      <div class="rka-info-actions">
+        <button class="btn-print" id="btnPrint" title="Cetak halaman">
+          <i class="bi bi-printer"></i><span class="d-none d-sm-inline">Cetak</span>
+        </button>
+        <button class="btn-kembali" id="btnKembali">
+          <i class="bi bi-arrow-left"></i> Kembali
+        </button>
+        <button class="btn-export" id="btnExport">
+          <i class="bi bi-file-earmark-excel-fill"></i> Export Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="rka-table-wrap">
+      <table class="rka" id="tblRKA">
+        <colgroup>
+          <col class="c-no"/><col class="c-kode"/>
+          <col class="c-uraian"/>
+          <col class="c-ang"/>
+          <col class="c-bulan"/><col class="c-bulan"/>
+          <col class="c-bulan"/><col class="c-bulan"/>
+          <col class="c-bulan"/><col class="c-bulan"/>
+          <col class="c-bulan"/><col class="c-bulan"/>
+          <col class="c-bulan"/><col class="c-bulan"/>
+          <col class="c-bulan"/><col class="c-bulan"/>
+          <col class="c-sisa"/>
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="th-no">#</th>
+            <th>Kode</th>
+            <th class="th-uraian">Uraian</th>
+            <th class="th-anggaran">Anggaran</th>
+            <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th>
+            <th>Mei</th><th>Jun</th><th>Jul</th><th>Aug</th>
+            <th>Sep</th><th>Okt</th><th>Nov</th><th>Des</th>
+            <th class="th-sisa">Sisa Anggaran</th>
+          </tr>
+        </thead>
+        <tbody id="tblBody">
+          <tr>
+            <td colspan="17">
+              <div class="rka-empty">
+                <div class="rka-empty-icon"><i class="bi bi-file-earmark-ruled"></i></div>
+                <h6>Belum ada data ditampilkan</h6>
+                <p>Gunakan filter di atas untuk memilih sub kegiatan yang akan ditampilkan.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot id="tblFoot" class="d-none">
+          <tr>
+            <td colspan="3" style="text-align:left;padding-left:1rem;">TOTAL KESELURUHAN</td>
+            <td class="td-ang" id="footTotal">—</td>
+            <td class="td-bulan" id="footJ1">—</td>
+            <td class="td-bulan" id="footJ2">—</td>
+            <td class="td-bulan" id="footJ3">—</td>
+            <td class="td-bulan" id="footJ4">—</td>
+            <td class="td-bulan" id="footJ5">—</td>
+            <td class="td-bulan" id="footJ6">—</td>
+            <td class="td-bulan" id="footJ7">—</td>
+            <td class="td-bulan" id="footJ8">—</td>
+            <td class="td-bulan" id="footJ9">—</td>
+            <td class="td-bulan" id="footJ10">—</td>
+            <td class="td-bulan" id="footJ11">—</td>
+            <td class="td-bulan" id="footJ12">—</td>
+            <td class="td-sisa sisa-plus" id="footSisa">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /content -->
+<footer class="main-footer">
+  <div class="footer-brand"><i class="bi bi-bank2"></i><span>Sistem Informasi RAPBD &copy; 2025 — Pemerintah Daerah</span></div>
+  <div class="footer-right">
+    <a href="#" class="footer-link">Panduan</a>
+    <a href="#" class="footer-link">Hubungi Admin</a>
+    <span class="footer-ver">v3.2.1</span>
+  </div>
+</footer>
+</div>
+
+<button class="fab" id="fabTop"><div class="fab-ring"></div><i class="bi bi-arrow-up"></i></button>
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════
+   REFERENCE & SAMPLE DATA
+══════════════════════════════════════════════ */
+const PROGRAM_LIST=[
+  {id:1,kode:'X.XX.01',nama:'Program Penunjang Urusan Pemerintahan Daerah Kabupaten/Kota'},
+  {id:2,kode:'1.02.02',nama:'Program Pemenuhan Upaya Kesehatan Perorangan & Penunjang'},
+  {id:3,kode:'1.03.01',nama:'Program Penyelenggaraan Jalan'},
+  {id:4,kode:'4.03.01',nama:'Program Perencanaan, Pengendalian & Evaluasi Pembangunan'},
+];
+const KEGIATAN_LIST=[
+  {id:1,prog_id:1,kode:'2 16 01 2.05',nama:'Administrasi Kepegawaian Perangkat Daerah'},
+  {id:2,prog_id:1,kode:'2 16 01 2.01',nama:'Perencanaan, Penganggaran dan Evaluasi Kinerja OPD'},
+  {id:3,prog_id:1,kode:'2 16 01 2.02',nama:'Administrasi Keuangan Perangkat Daerah'},
+  {id:4,prog_id:2,kode:'1.02.03 2.01',nama:'Penyediaan Layanan Kesehatan untuk UKP Rujukan'},
+  {id:5,prog_id:3,kode:'1.03.01 2.01',nama:'Pembangunan Jalan'},
+  {id:6,prog_id:4,kode:'4.03.01 2.01',nama:'Penyusunan Dokumen Perencanaan Pembangunan Daerah'},
+];
+const SUBKEG_LIST=[
+  {id:1,keg_id:1,kode:'2 16 01 2.05 0001',nama:'Pengadaan Pakaian Dinas Harian beserta Atribut Kelengkapannya'},
+  {id:2,keg_id:1,kode:'2 16 01 2.05 0002',nama:'Pengadaan Pakaian Dinas beserta Atribut Kelengkapannya'},
+  {id:3,keg_id:1,kode:'2 16 01 2.05 0003',nama:'Pendidikan dan Pelatihan Pegawai'},
+  {id:4,keg_id:2,kode:'2 16 01 2.01 0001',nama:'Penyusunan Dokumen Perencanaan Perangkat Daerah'},
+  {id:5,keg_id:3,kode:'2 16 01 2.02 0001',nama:'Penyediaan Gaji dan Tunjangan ASN'},
+  {id:6,keg_id:4,kode:'1.02.03 2.01 0001',nama:'Pengelolaan Pelayanan Kesehatan Ibu Hamil'},
+  {id:7,keg_id:5,kode:'1.03.01 2.01 0001',nama:'Pembangunan Jalan Kabupaten/Kota'},
+];
+
+/* RKA Data per sub kegiatan
+   Struktur: rekening (L1) → pekerjaan (L2) → rincian (L3)
+   bulan: [jan,feb,mar,apr,mei,jun,jul,aug,sep,okt,nov,des]
+*/
+const RKA_DATA = {
+  /* Sub kegiatan 2: Pengadaan Pakaian Dinas */
+  2:[
+    {
+      type:'rekening',no:1,
+      kode:'5.1.02.01.01.0074',uraian:'Belanja Pakaian Adat Daerah',
+      anggaran:5000000,
+      pekerjaan:[
+        {
+          uraian:'Pekerjaan',
+          rincian:[
+            {uraian:'Kostum Karnaval',anggaran:5000000,bulan:[0,0,0,0,0,0,0,0,0,0,0,0]},
+          ]
+        }
+      ]
+    },
+    {
+      type:'rekening',no:2,
+      kode:'5.1.02.01.01.0075',uraian:'Belanja Pakaian Dinas Harian',
+      anggaran:12000000,
+      pekerjaan:[
+        {
+          uraian:'Pekerjaan',
+          rincian:[
+            {uraian:'Seragam PDH Warna Khaki',anggaran:8000000,bulan:[0,0,8000000,0,0,0,0,0,0,0,0,0]},
+            {uraian:'Atribut & Kelengkapan Seragam',anggaran:4000000,bulan:[0,0,4000000,0,0,0,0,0,0,0,0,0]},
+          ]
+        }
+      ]
+    },
+    {
+      type:'rekening',no:3,
+      kode:'5.1.02.01.01.0076',uraian:'Belanja Pakaian Olahraga',
+      anggaran:3500000,
+      pekerjaan:[
+        {
+          uraian:'Pekerjaan',
+          rincian:[
+            {uraian:'Kaos Olahraga Berlogo',anggaran:2000000,bulan:[0,0,0,0,2000000,0,0,0,0,0,0,0]},
+            {uraian:'Celana Olahraga',anggaran:1500000,bulan:[0,0,0,0,1500000,0,0,0,0,0,0,0]},
+          ]
+        }
+      ]
+    },
+  ],
+  /* Sub kegiatan 5: Gaji ASN */
+  5:[
+    {
+      type:'rekening',no:1,
+      kode:'5.1.01.01.01.0001',uraian:'Belanja Gaji Pokok PNS',
+      anggaran:180000000,
+      pekerjaan:[
+        {
+          uraian:'Pembayaran Gaji Pokok',
+          rincian:[
+            {uraian:'Gaji Pokok ASN Gol I-II',anggaran:60000000, bulan:[5000000,5000000,5000000,5000000,5000000,5000000,5000000,5000000,5000000,5000000,5000000,5000000]},
+            {uraian:'Gaji Pokok ASN Gol III',anggaran:72000000, bulan:[6000000,6000000,6000000,6000000,6000000,6000000,6000000,6000000,6000000,6000000,6000000,6000000]},
+            {uraian:'Gaji Pokok ASN Gol IV',anggaran:48000000, bulan:[4000000,4000000,4000000,4000000,4000000,4000000,4000000,4000000,4000000,4000000,4000000,4000000]},
+          ]
+        }
+      ]
+    },
+    {
+      type:'rekening',no:2,
+      kode:'5.1.01.01.01.0002',uraian:'Belanja Tunjangan Keluarga',
+      anggaran:24000000,
+      pekerjaan:[
+        {
+          uraian:'Tunjangan Suami/Istri dan Anak',
+          rincian:[
+            {uraian:'Tunjangan Suami/Istri (2%)',anggaran:15000000,bulan:[1250000,1250000,1250000,1250000,1250000,1250000,1250000,1250000,1250000,1250000,1250000,1250000]},
+            {uraian:'Tunjangan Anak (2% per anak)',anggaran:9000000, bulan:[750000,750000,750000,750000,750000,750000,750000,750000,750000,750000,750000,750000]},
+          ]
+        }
+      ]
+    },
+    {
+      type:'rekening',no:3,
+      kode:'5.1.01.01.01.0003',uraian:'Belanja Tunjangan Jabatan',
+      anggaran:36000000,
+      pekerjaan:[
+        {
+          uraian:'Tunjangan Jabatan Struktural',
+          rincian:[
+            {uraian:'Tunjangan Jabatan Eselon II',anggaran:12000000,bulan:[1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000]},
+            {uraian:'Tunjangan Jabatan Eselon III',anggaran:15600000,bulan:[1300000,1300000,1300000,1300000,1300000,1300000,1300000,1300000,1300000,1300000,1300000,1300000]},
+            {uraian:'Tunjangan Jabatan Eselon IV',anggaran:8400000, bulan:[700000,700000,700000,700000,700000,700000,700000,700000,700000,700000,700000,700000]},
+          ]
+        }
+      ]
+    },
+  ],
+  /* Sub kegiatan 6: Pelayanan Kesehatan Ibu */
+  6:[
+    {
+      type:'rekening',no:1,
+      kode:'5.1.02.02.01.0001',uraian:'Belanja Bahan Habis Pakai',
+      anggaran:15000000,
+      pekerjaan:[
+        {
+          uraian:'Pengadaan Bahan Medis Habis Pakai',
+          rincian:[
+            {uraian:'Strip Tes Kehamilan',      anggaran:3000000, bulan:[250000,250000,250000,250000,250000,250000,250000,250000,250000,250000,250000,250000]},
+            {uraian:'Tablet Fe (Zat Besi)',      anggaran:5000000, bulan:[0,2500000,0,2500000,0,0,0,0,0,0,0,0]},
+            {uraian:'Asam Folat',               anggaran:4000000, bulan:[0,2000000,0,2000000,0,0,0,0,0,0,0,0]},
+            {uraian:'Vitamin & Suplemen Ibu Hamil',anggaran:3000000,bulan:[0,0,1500000,0,1500000,0,0,0,0,0,0,0]},
+          ]
+        }
+      ]
+    },
+    {
+      type:'rekening',no:2,
+      kode:'5.1.02.02.04.0001',uraian:'Belanja Jasa Tenaga Ahli',
+      anggaran:8400000,
+      pekerjaan:[
+        {
+          uraian:'Honorarium Tenaga Kesehatan',
+          rincian:[
+            {uraian:'Honor Bidan Kelas Ibu Hamil (7 posyandu)',anggaran:8400000,bulan:[700000,700000,700000,700000,700000,700000,700000,700000,700000,700000,700000,700000]},
+          ]
+        }
+      ]
+    },
+    {
+      type:'rekening',no:3,
+      kode:'5.1.02.08.01.0001',uraian:'Belanja Perjalanan Dinas Dalam Kota',
+      anggaran:3600000,
+      pekerjaan:[
+        {
+          uraian:'Transport Kunjungan Rumah',
+          rincian:[
+            {uraian:'Transport petugas kunjungan bumil risiko tinggi',anggaran:3600000,bulan:[300000,300000,300000,300000,300000,300000,300000,300000,300000,300000,300000,300000]},
+          ]
+        }
+      ]
+    },
+  ],
+};
+
+/* ══════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════ */
+function rp(n){
+  if(n===null||n===undefined||n===0)return '-';
+  return 'Rp. '+n.toLocaleString('id-ID');
+}
+function rpShort(n){
+  if(!n||n===0)return 'Rp 0';
+  if(n>=1e9)return 'Rp '+(n/1e9).toFixed(2)+'M';
+  if(n>=1e6)return 'Rp '+(n/1e6).toFixed(1)+'Jt';
+  return 'Rp '+n.toLocaleString('id-ID');
+}
+function showToast(type,icon,msg){
+  const s=document.getElementById('toastStack');
+  const el=document.createElement('div');el.className='toast-item';
+  el.innerHTML=`<div class="toast-dot ${type}"><i class="bi ${icon}"></i></div><div style="flex:1;">${msg}</div>`;
+  s.appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),300);},3000);
+}
+
+/* ══════════════════════════════════════════════
+   CASCADE FILTER
+══════════════════════════════════════════════ */
+function buildProgram(){
+  const s=document.getElementById('fProgram');
+  s.innerHTML='<option value="">— Pilih Program —</option>'+
+    PROGRAM_LIST.map(p=>`<option value="${p.id}">${p.kode} - ${p.nama}</option>`).join('');
+}
+function updateKegiatan(pid){
+  const s=document.getElementById('fKegiatan');
+  const sSK=document.getElementById('fSubKegiatan');
+  if(!pid){s.innerHTML='<option value="">— Pilih program dulu —</option>';s.disabled=true;sSK.innerHTML='<option value="">— Pilih kegiatan dulu —</option>';sSK.disabled=true;return;}
+  const list=KEGIATAN_LIST.filter(k=>k.prog_id==pid);
+  s.innerHTML='<option value="">— Pilih Kegiatan —</option>'+list.map(k=>`<option value="${k.id}">${k.kode} - ${k.nama}</option>`).join('');
+  s.disabled=false;
+  sSK.innerHTML='<option value="">— Pilih kegiatan dulu —</option>';sSK.disabled=true;
+}
+function updateSubKeg(kid){
+  const s=document.getElementById('fSubKegiatan');
+  if(!kid){s.innerHTML='<option value="">— Pilih kegiatan dulu —</option>';s.disabled=true;return;}
+  const list=SUBKEG_LIST.filter(sk=>sk.keg_id==kid);
+  s.innerHTML='<option value="">— Pilih Sub Kegiatan —</option>'+list.map(sk=>`<option value="${sk.id}">${sk.kode} - ${sk.nama}</option>`).join('');
+  s.disabled=false;
+}
+
+document.getElementById('fProgram').addEventListener('change',function(){updateKegiatan(this.value);});
+document.getElementById('fKegiatan').addEventListener('change',function(){updateSubKeg(this.value);});
+
+/* ══════════════════════════════════════════════
+   RENDER RKA TABLE
+══════════════════════════════════════════════ */
+function renderRKA(skId){
+  const sk = SUBKEG_LIST.find(x=>x.id==skId);
+  const kg = KEGIATAN_LIST.find(x=>x.id==sk.keg_id);
+  const pr = PROGRAM_LIST.find(x=>x.id==kg.prog_id);
+  const rkaRows = RKA_DATA[skId] || [];
+
+  /* ── Info header ── */
+  document.getElementById('rkaInfoRows').innerHTML=`
+    <div class="rka-info-row">
+      <span class="rka-info-label">Program</span>
+      <span class="rka-info-sep">:</span>
+      <span class="rka-info-val"><strong>${pr.kode}</strong> - ${pr.nama}<span class="tahun-badge"><i class="bi bi-calendar3"></i>2025</span></span>
+    </div>
+    <div class="rka-info-row">
+      <span class="rka-info-label">Kegiatan</span>
+      <span class="rka-info-sep">:</span>
+      <span class="rka-info-val">${kg.kode} - ${kg.nama}</span>
+    </div>
+    <div class="rka-info-row">
+      <span class="rka-info-label">Sub Kegiatan</span>
+      <span class="rka-info-sep">:</span>
+      <span class="rka-info-val">${sk.kode} - ${sk.nama}</span>
+    </div>
+  `;
+
+  if(!rkaRows.length){
+    document.getElementById('tblBody').innerHTML=`
+      <tr><td colspan="17">
+        <div class="rka-empty">
+          <div class="rka-empty-icon"><i class="bi bi-inbox"></i></div>
+          <h6>Data RKA belum tersedia</h6>
+          <p>Sub kegiatan ini belum memiliki data rincian anggaran.</p>
+        </div>
+      </td></tr>`;
+    document.getElementById('tblFoot').classList.add('d-none');
+    document.getElementById('summaryRow').classList.add('d-none');
+    return;
+  }
+
+  /* ── Build table rows ── */
+  let html='';
+  let grandTotal=0;
+  let grandBulan=Array(12).fill(0);
+
+  rkaRows.forEach(rek=>{
+    /* accumulate rekening total */
+    let rekTotal=rek.anggaran;
+    grandTotal+=rekTotal;
+
+    /* bulan rekening = sum of all rincian */
+    let rekBulan=Array(12).fill(0);
+    rek.pekerjaan.forEach(pek=>{
+      pek.rincian.forEach(r=>{
+        r.bulan.forEach((v,i)=>{rekBulan[i]+=v;grandBulan[i]+=v;});
+      });
+    });
+
+    let rekRealisasi=rekBulan.reduce((a,b)=>a+b,0);
+    let rekSisa=rekTotal-rekRealisasi;
+
+    /* L1 — Rekening row */
+    html+=`<tr class="row-l1">
+      <td class="td-no">${rek.no}</td>
+      <td class="td-kode"><span class="kode-cell">${rek.kode}</span></td>
+      <td class="td-uraian" style="font-weight:700;">${rek.uraian}</td>
+      <td class="td-ang">${rp(rekTotal)}</td>
+      ${rekBulan.map(v=>`<td class="td-bulan">${v?'<span style="font-weight:600;color:var(--rka);">'+rp(v)+'</span>':'<span class="bulan-dash">-</span>'}`).join('')}
+      <td class="td-sisa ${rekSisa>0?'sisa-plus':rekSisa<0?'sisa-minus':'sisa-zero'}">${rp(rekSisa)}</td>
+    </tr>`;
+
+    /* L2 & L3 */
+    rek.pekerjaan.forEach(pek=>{
+      /* L2 — Pekerjaan row */
+      let pekTotal=pek.rincian.reduce((s,r)=>s+r.anggaran,0);
+      let pekBulan=Array(12).fill(0);
+      pek.rincian.forEach(r=>r.bulan.forEach((v,i)=>pekBulan[i]+=v));
+      let pekSisa=pekTotal-pekBulan.reduce((a,b)=>a+b,0);
+
+      html+=`<tr class="row-l2">
+        <td class="td-no"></td>
+        <td class="td-kode"></td>
+        <td class="td-uraian uraian-pekerjaan">${pek.uraian}</td>
+        <td class="td-ang" style="color:var(--text-muted);"></td>
+        ${Array(12).fill('<td class="td-bulan"></td>').join('')}
+        <td class="td-sisa ${pekSisa>0?'sisa-plus':'sisa-zero'}">${rp(pekSisa)}</td>
+      </tr>`;
+
+      /* L3 — Rincian rows */
+      pek.rincian.forEach(r=>{
+        let rSisa=r.anggaran-r.bulan.reduce((a,b)=>a+b,0);
+        html+=`<tr class="row-l3">
+          <td class="td-no"></td>
+          <td class="td-kode"></td>
+          <td class="td-uraian uraian-rincian">${r.uraian}</td>
+          <td class="td-ang" style="color:var(--text-muted);font-size:.72rem;">${rp(r.anggaran)}</td>
+          ${r.bulan.map(v=>`<td class="td-bulan">${v?rp(v):'<span class="bulan-dash">-</span>'}`).join('')}
+          <td class="td-sisa ${rSisa>0?'sisa-plus':rSisa===0?'sisa-zero':'sisa-minus'}" style="color:${rSisa>0?'#16a34a':rSisa<0?'#dc2626':'var(--text-muted)'};">${rp(rSisa)}</td>
+        </tr>`;
+      });
+    });
+
+    /* spacer */
+    html+=`<tr class="row-sep"><td colspan="17"></td></tr>`;
+  });
+
+  document.getElementById('tblBody').innerHTML=html;
+
+  /* ── Footer total ── */
+  const tfoot=document.getElementById('tblFoot');
+  tfoot.classList.remove('d-none');
+  document.getElementById('footTotal').textContent=rp(grandTotal);
+  grandBulan.forEach((v,i)=>{
+    document.getElementById('footJ'+(i+1)).textContent=v?rp(v):'-';
+  });
+  const grandSisa=grandTotal-grandBulan.reduce((a,b)=>a+b,0);
+  const footSisa=document.getElementById('footSisa');
+  footSisa.textContent=rp(grandSisa);
+  footSisa.className='td-sisa '+(grandSisa>0?'sisa-plus':grandSisa<0?'sisa-minus':'sisa-zero');
+
+  /* ── Summary cards ── */
+  const grandReal=grandBulan.reduce((a,b)=>a+b,0);
+  const pct=grandTotal>0?Math.round(grandReal/grandTotal*100):0;
+  document.getElementById('sumTotal').textContent=rpShort(grandTotal);
+  document.getElementById('sumRealisasi').textContent=rpShort(grandReal);
+  document.getElementById('sumSisa').textContent=rpShort(grandSisa);
+  document.getElementById('sumPct').textContent=pct+'%';
+  document.getElementById('summaryRow').classList.remove('d-none');
+}
+
+/* ══════════════════════════════════════════════
+   EVENTS
+══════════════════════════════════════════════ */
+document.getElementById('btnTampil').addEventListener('click',()=>{
+  const skId=document.getElementById('fSubKegiatan').value;
+  if(!skId){showToast('info','bi-exclamation-circle','Pilih Sub Kegiatan terlebih dahulu.');return;}
+  renderRKA(parseInt(skId));
+  showToast('success','bi-check-circle-fill','Data RKA berhasil dimuat.');
+});
+
+document.getElementById('btnKembali').addEventListener('click',()=>{
+  // Reset to initial state
+  document.getElementById('fProgram').value='';
+  document.getElementById('fKegiatan').innerHTML='<option value="">— Pilih program dulu —</option>';
+  document.getElementById('fKegiatan').disabled=true;
+  document.getElementById('fSubKegiatan').innerHTML='<option value="">— Pilih kegiatan dulu —</option>';
+  document.getElementById('fSubKegiatan').disabled=true;
+  document.getElementById('tblBody').innerHTML=`<tr><td colspan="17"><div class="rka-empty"><div class="rka-empty-icon"><i class="bi bi-file-earmark-ruled"></i></div><h6>Belum ada data ditampilkan</h6><p>Gunakan filter di atas untuk memilih sub kegiatan yang akan ditampilkan.</p></div></td></tr>`;
+  document.getElementById('tblFoot').classList.add('d-none');
+  document.getElementById('summaryRow').classList.add('d-none');
+  document.getElementById('rkaInfoRows').innerHTML=`<div class="rka-info-row" style="color:var(--text-muted);font-style:italic;font-size:.8rem;"><i class="bi bi-arrow-up-left" style="margin-right:.35rem;"></i>Pilih Program, Kegiatan, dan Sub Kegiatan lalu klik <strong style="color:var(--rka);font-style:normal;">Tampilkan RKA</strong></div>`;
+});
+
+document.getElementById('btnExport').addEventListener('click',()=>{
+  showToast('success','bi-file-earmark-excel-fill','Data RKA sedang diekspor ke Excel...');
+});
+
+document.getElementById('btnPrint').addEventListener('click',()=>{window.print();});
+
+/* ══════════════════════════════════════════════
+   SIDEBAR / TOPBAR
+══════════════════════════════════════════════ */
+const hamburger=document.getElementById('hamburgerBtn');
+const hamburgerIcon=document.getElementById('hamburgerIcon');
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('sidebarOverlay');
+const isMobile=()=>window.innerWidth<900;
+hamburger.addEventListener('click',()=>{
+  if(isMobile()){const open=sidebar.classList.toggle('mobile-open');overlay.classList.toggle('show',open);hamburgerIcon.className=open?'bi bi-x-lg':'bi bi-list';}
+  else{document.body.classList.toggle('collapsed');hamburgerIcon.className=document.body.classList.contains('collapsed')?'bi bi-layout-sidebar-reverse':'bi bi-list';}
+});
+overlay.addEventListener('click',()=>{sidebar.classList.remove('mobile-open');overlay.classList.remove('show');hamburgerIcon.className='bi bi-list';});
+window.addEventListener('resize',()=>{if(!isMobile()){sidebar.classList.remove('mobile-open');overlay.classList.remove('show');}});
+
+const userTrigger=document.getElementById('userTrigger');
+const userDropdown=document.getElementById('userDropdown');
+userTrigger.addEventListener('click',e=>{e.stopPropagation();const open=userDropdown.classList.toggle('show');userTrigger.classList.toggle('open',open);});
+document.addEventListener('click',()=>{userDropdown.classList.remove('show');userTrigger.classList.remove('open');});
+
+const fab=document.getElementById('fabTop');
+window.addEventListener('scroll',()=>fab.classList.toggle('visible',window.scrollY>200));
+fab.addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});fab.style.transform='rotate(360deg) scale(1.15)';setTimeout(()=>fab.style.transform='',400);});
+
+/* INIT */
+buildProgram();
+
+/* Demo: auto-load sample data (sub kegiatan 2 = Pakaian Dinas) */
+document.getElementById('fProgram').value='1';
+updateKegiatan('1');
+setTimeout(()=>{
+  document.getElementById('fKegiatan').value='1';
+  updateSubKeg('1');
+  setTimeout(()=>{
+    document.getElementById('fSubKegiatan').value='2';
+    renderRKA(2);
+  },100);
+},100);
+</script>
+</body>
+</html>
